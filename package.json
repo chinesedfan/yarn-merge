@@ -1,0 +1,17 @@
+{
+  "name": "yarn-merge",
+  "version": "0.1.0",
+  "description": "Scan yarn.lock then list merge-able packages",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "yarn",
+    "lock",
+    "merge",
+    "scan"
+  ],
+  "author": "Xianming Zhong",
+  "license": "MIT"
+}

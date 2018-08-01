@@ -1,0 +1,11 @@
+.idea
+.DS_Store
+.vscode
+.travis.yml
+
+coverage
+test
+
+jest.config.js
+webpack.config.js
+yarn.lock
