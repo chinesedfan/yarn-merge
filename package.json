@@ -13,5 +13,9 @@
     "scan"
   ],
   "author": "Xianming Zhong",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@yarnpkg/lockfile": "^1.0.2",
+    "semver": "^5.5.0"
+  }
 }
