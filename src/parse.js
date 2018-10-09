@@ -17,49 +17,86 @@ type DepItem = {
     ...FileParseItem,
     id: PkgWithScope,
     name: string,
-    parent?: DepItem
+    parents: Array<DepItem>,
+    children: Array<DepItem>
 };
 
 type GraphInput = {
-    nodes: {
+    nodes: Array<{
         id: string,
         group: number
-    },
-    links: {
+    }>,
+    links: Array<{
         source: string, // id
         target: string, // id
         value: number
-    }
+    }>
 };
 
-function parseFile(content: string): Array<DepItem> {
+export function parseFile(content: string): Array<DepItem> {
     const directDeps: Array<DepItem> = [];
     const result: FileParseResult = parse(content);
-    const parents: {[key: PkgWithScope]: FileParseItem} = {};
+    const depMap: {[key: PkgWithScope]: DepItem} = {};
 
+    // build map first
     Object.keys(result.object).forEach((pkgWithScope) => {
         const item = result.object[pkgWithScope];
-        if (item.dependencies) {
-            for (const pkg in item.dependencies) {
-                parents[`${pkg}@${item.dependencies[pkg]}`] = item;
-            }
-        }
-
-        const dep = {
+        depMap[pkgWithScope] = {
             ...item,
             id: pkgWithScope,
             name: pkgWithScope.substr(0, pkgWithScope.lastIndexOf('@')),
-            parent: parents[pkgWithScope]
+            parents: [],
+            children: []
         };
-        if (!dep.parent) {
-            directDeps.push(dep);
+    });
+
+    // then set up connections
+    Object.keys(depMap).forEach((pkgWithScope) => {
+        const item = depMap[pkgWithScope];
+        if (item.dependencies) {
+            for (const pkg in item.dependencies) {
+                const child = depMap[`${pkg}@${item.dependencies[pkg]}`];
+                child.parents.push(item);
+                item.children.push(child);
+            }
+        }
+    });
+
+    // extract direct deps at last
+    Object.keys(depMap).forEach((pkgWithScope) => {
+        const item = depMap[pkgWithScope];
+        if (!item.parents.length) {
+            directDeps.push(item);
         }
     });
 
     return directDeps;
 }
 
-function drawSamePkg(pkg: string, result: FileParseResult): GraphInput {
+export function drawSamePkg(pkgs: Array<DepItem>, name: string): GraphInput {
+    const q = [...pkgs];
+    const input: GraphInput = {
+        nodes: [],
+        links: []
+    };
+    while (q.length) {
+        const item = q.shift();
+        input.nodes.push({
+            id: item.id,
+            group: item.name === name ? 1 : 2
+        });
+
+        item.children.forEach((child) => {
+            input.links.push({
+                source: item.id,
+                target: child.id,
+                value: 1
+            });
+        });
+        q.push(...item.children);
+    }
+
+    return input;
 }
 function drawPathToRoot(pkg: string, result: FileParseResult): GraphInput {
 }
