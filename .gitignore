@@ -1,7 +1,9 @@
 .idea
 .DS_Store
 .vscode
+*.log
 
 coverage
 dist
 node_modules/
+lib/

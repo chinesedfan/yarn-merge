@@ -4,6 +4,7 @@
   "description": "Scan yarn.lock then list merge-able packages",
   "main": "index.js",
   "scripts": {
+    "build": "babel src --out-dir lib",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -17,5 +18,11 @@
   "dependencies": {
     "@yarnpkg/lockfile": "^1.0.2",
     "semver": "^5.5.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-flow": "^7.0.0"
   }
 }
