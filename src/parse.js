@@ -6,7 +6,7 @@ type VersionScope = string;
 type FileParseItem = {
     version: string,  // certain version
     resolved: string, // url
-    dependencies: {[key: string]: VersionScope}
+    dependencies?: {[key: string]: VersionScope}
 };
 type FileParseResult = {
     type: string,
@@ -33,8 +33,7 @@ type GraphInput = {
     }>
 };
 
-export function parseFile(content: string): Array<DepItem> {
-    const directDeps: Array<DepItem> = [];
+export function parseFile(content: string): DepItem {
     const result: FileParseResult = parse(content);
     const depMap: {[key: PkgWithScope]: DepItem} = {};
 
@@ -63,18 +62,26 @@ export function parseFile(content: string): Array<DepItem> {
     });
 
     // extract direct deps at last
+    const root: DepItem = {
+        id: 'yarn-merge@0.1.0',
+        name: 'yarn-merge',
+        version: '0.1.0',
+        resolved: '// TODO',
+        parents: [],
+        children: []
+    };
     Object.keys(depMap).forEach((pkgWithScope) => {
         const item = depMap[pkgWithScope];
         if (!item.parents.length) {
-            directDeps.push(item);
+            root.children.push(item);
         }
     });
 
-    return directDeps;
+    return root;
 }
 
-export function drawSamePkg(pkgs: Array<DepItem>, name: string): GraphInput {
-    const q = [...pkgs];
+export function drawSamePkg(root: DepItem, name: string): GraphInput {
+    const q = [root];
     const input: GraphInput = {
         nodes: [],
         links: []
