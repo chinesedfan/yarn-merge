@@ -73,6 +73,7 @@ export function parseFile(content: string): DepItem {
     Object.keys(depMap).forEach((pkgWithScope) => {
         const item = depMap[pkgWithScope];
         if (!item.parents.length) {
+            item.parents.push(root);
             root.children.push(item);
         }
     });
