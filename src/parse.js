@@ -82,26 +82,50 @@ export function parseFile(content: string): DepItem {
 }
 
 export function drawSamePkg(root: DepItem, name: string): GraphInput {
-    const q = [root];
+    let q = [root];
+    let visited: {[key: PkgWithScope]: boolean} = {};
+    const items: DepItem[] = [];
+    while (q.length) {
+        const item = q.shift();
+        if (visited[item.id]) continue;
+
+        if (item.name === name) {
+            visited[item.id] = true;
+            items.push(item);
+        }
+        item.children.forEach((child) => {
+            if (visited[child.id]) return;
+
+            q.push(child);
+        });
+    }
+
+    q = items;
+    visited = {};
     const input: GraphInput = {
         nodes: [],
         links: []
     };
     while (q.length) {
         const item = q.shift();
+        if (visited[item.id]) continue;
+
+        visited[item.id] = true;
         input.nodes.push({
             id: item.id,
             group: item.name === name ? 1 : 2
         });
 
-        item.children.forEach((child) => {
+        item.parents.forEach((parent) => {
             input.links.push({
                 source: item.id,
-                target: child.id,
+                target: parent.id,
                 value: 1
             });
+
+            if (visited[parent.id]) return;
+            q.push(parent);
         });
-        q.push(...item.children);
     }
 
     return input;
