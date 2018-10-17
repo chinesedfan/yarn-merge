@@ -61,15 +61,31 @@ d3.json("miserables.json", function(error, graph) {
       .links(graph.links);
 
   function ticked() {
+    var ds = node.data();
+    var padding = 20;
+
+    var xScale = d3.scaleLinear()
+      .domain([
+        d3.min(ds, function(d) { return d.x; }),
+        d3.max(ds, function(d) { return d.x; })
+      ])
+      .range([padding, width - padding]);
+    var yScale = d3.scaleLinear()
+      .domain([
+        d3.min(ds, function(d) { return d.y; }),
+        d3.max(ds, function(d) { return d.y; })
+      ])
+      .range([padding, height - padding]);
+
     link
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+        .attr("x1", function(d) { return xScale(d.source.x); })
+        .attr("y1", function(d) { return yScale(d.source.y); })
+        .attr("x2", function(d) { return xScale(d.target.x); })
+        .attr("y2", function(d) { return yScale(d.target.y); });
 
     node
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+        .attr("cx", function(d) { return xScale(d.x); })
+        .attr("cy", function(d) { return yScale(d.y); });
   }
 });
 
