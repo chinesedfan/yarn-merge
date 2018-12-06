@@ -8,7 +8,7 @@ function parseLockfile(file) {
     const content = fs.readFileSync(file || './yarn.lock', 'utf8').toString();
     const lines = content.split('\n');
     for (let i = 0; i < lines.length; i++) {
-        if (!/^\S+:$/.test(lines[i])) continue;
+        if (!/^\S+.*:$/.test(lines[i])) continue;
 
         const arr = parseRulesLine(lines[i]);
         const name = arr[0][0];
@@ -37,8 +37,8 @@ function parseLockfile(file) {
     console.log('...done!');
 }
 function parseRulesLine(line) {
-    return line.split(', ').map((token) => {
-        token = token.substr(0, token.length - 1); // the last is colon
+    // the last character is colon
+    return line.substr(0, line.length - 1).split(', ').map((token) => {
         if (token[0] === '"' && token[token.length - 1] === '"') token = token.substring(1, token.length - 1);
 
         const index = token.lastIndexOf('@');
